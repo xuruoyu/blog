@@ -235,7 +235,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-03-15 00:50:28 / 修改时间：01:45:07" itemprop="dateCreated datePublished" datetime="2020-03-15T00:50:28+08:00">2020-03-15</time>
+              <time title="创建时间：2020-03-15 00:50:28 / 修改时间：03:25:11" itemprop="dateCreated datePublished" datetime="2020-03-15T00:50:28+08:00">2020-03-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,26 +258,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          最近初次接触hexo，但是插入图片过于麻烦，目前我是这么处理图片问题的。
+          <html><head></head><body>最近初次接触hexo，但是插入图片过于麻烦，目前我是这么处理图片问题的。
 
 步骤如下： 1. 在最外层目录建立assets目录，用于存放一些体积比较大的文件，包括图片。 2. assets目录上传至七牛云存储。 3. 服务器端nginx重写/assets路由。
 
 当然这样处理后，hexo就不能够部署在github中了。
 
-目前我还在写一个插件，自动在img前面添加一个域名前缀，这样就不用nginx做重定向了。
-
-编辑时的效果
-
- 
-
-目前服务器端配置如下（以nginx为例） 1
+目前我还在写一个插件，自动在img前面添加一个域名前缀，这样就不用nginx做重定向了。(已经写好了,奈何墙太高,github没法推送,各位自己建node_module好了。。。) 1
 2
 3
 4
-
-
-location /assets {
-    return http://q76ff0reh.bkt
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</body></html>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/hexo%E5%9B%BE%E5%BA%8A%E6%95%99%E7%A8%8B-%E5%90%8C%E6%97%B6%E8%83%BD%E5%A4%9F%E5%9C%A8vscode%E4%B8%AD%E9%A2%84%E8%A7%88/#more" rel="contents">
@@ -358,7 +363,7 @@ location /assets {
     <div class="post-body" itemprop="articleBody">
 
       
-          背景
+          <html><head></head><body>背景
 最近迷上了百闻牌这个游戏，但是有个任务需要练三个小号到15级，是在烦人，所以一直在想一个办法能否自动挂机刷经验，但是需要一些图像处理的知识。所以目前先学习一下opencv。
 
 先学习三种模式匹配
@@ -367,7 +372,7 @@ location /assets {
 BFMatcher
 Brute-Force匹配器很简单，它取第一个集合里一个特征的描述子并用第二个集合里所有其他的特征和他通过一些距离计算进行匹配。最近的返回。
 
-对于BF匹配器，首先我们得用cv
+对于BF匹配器，首先我们得用cv</body></html>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/#more" rel="contents">
@@ -439,7 +444,7 @@ Brute-Force匹配器很简单，它取第一个集合里一个特征的描述子
     <div class="post-body" itemprop="articleBody">
 
       
-          一级标题
+          <html><head></head><body>一级标题
 二级标题
 1
 2
@@ -468,7 +473,7 @@ for(i=0;i<10;i++){
 
 \[\begin{equation} \label{eq2} \begin{aligned} a &= b + c \\ &= d + e + f + g \\ &= h + i \end{aligned} \end{equation}\]
 
-一张图片
+一张图片</body></html>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/#more" rel="contents">
@@ -540,7 +545,7 @@ for(i=0;i<10;i++){
     <div class="post-body" itemprop="articleBody">
 
       
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+          <html><head></head><body>Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
 
 Quick Start
 Create a new post
@@ -556,7 +561,7 @@ Run server
 1
 
 
-$ hexo s
+$ hexo s</body></html>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/hello-world/#more" rel="contents">
