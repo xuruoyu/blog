@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+<!--embed src="http://119.3.50.146/mnt/obs_vdisk/xry_like/Cyka%20Blyat.mp3" hidden="true" autostart="true" loop="true"-->
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuruoyu.gitee.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景 最近迷上了百闻牌这个游戏，但是有个任务需要练三个小号到15级，是在烦人，所以一直在想一个办法能否自动挂机刷经验，但是需要一些图像处理的知识。所以目前先学习一下opencv。  先学习三种模式匹配 目前没看太多关于图片匹配的文章，所以只学了三种匹配方式 1. matchTemplate: 模版匹配 2. BFMatcher: Brute-Force匹配器 3. knnMatch: 邻近算法匹配">
+<meta property="og:type" content="article">
+<meta property="og:title" content="opencv学习笔记-1">
+<meta property="og:url" content="http://xuruoyu.gitee.io/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/index.html">
+<meta property="og:site_name" content="HentaiX">
+<meta property="og:description" content="背景 最近迷上了百闻牌这个游戏，但是有个任务需要练三个小号到15级，是在烦人，所以一直在想一个办法能否自动挂机刷经验，但是需要一些图像处理的知识。所以目前先学习一下opencv。  先学习三种模式匹配 目前没看太多关于图片匹配的文章，所以只学了三种匹配方式 1. matchTemplate: 模版匹配 2. BFMatcher: Brute-Force匹配器 3. knnMatch: 邻近算法匹配">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xuruoyu.gitee.io/assets/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/bfmatch1.jpg">
+<meta property="og:image" content="http://xuruoyu.gitee.io/assets/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/knn1.jpg">
+<meta property="og:image" content="http://xuruoyu.gitee.io/assets/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/knn2.jpg">
+<meta property="article:published_time" content="2020-03-14T14:29:02.000Z">
+<meta property="article:modified_time" content="2020-03-14T17:18:41.063Z">
+<meta property="article:author" content="HentaiX">
+<meta property="article:tag" content="opencv">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="numpy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xuruoyu.gitee.io/assets/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/bfmatch1.jpg">
+
+<link rel="canonical" href="http://xuruoyu.gitee.io/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>opencv学习笔记-1 | HentaiX</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e18c57ea0514d39c9d946ac14bdb3c99";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">HentaiX</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-fw fa-sitemap"></i>站点地图</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/xuruoyu" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://xuruoyu.gitee.io/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="HentaiX">
+      <meta itemprop="description" content="秃头中的老男人的日志">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HentaiX">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          opencv学习笔记-1
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-14 22:29:02" itemprop="dateCreated datePublished" datetime="2020-03-14T22:29:02+08:00">2020-03-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-15 01:18:41" itemprop="dateModified" datetime="2020-03-15T01:18:41+08:00">2020-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">opencv学习笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="背景">背景</h1>
+<p>最近迷上了百闻牌这个游戏，但是有个任务需要练三个小号到15级，是在烦人，所以一直在想一个办法能否自动挂机刷经验，但是需要一些图像处理的知识。所以目前先学习一下opencv。</p>
+<h1 id="先学习三种模式匹配">先学习三种模式匹配</h1>
+<p>目前没看太多关于图片匹配的文章，所以只学了三种匹配方式 1. matchTemplate: 模版匹配 2. BFMatcher: Brute-Force匹配器 3. knnMatch: 邻近算法匹配</p>
+<h2 id="bfmatcher">BFMatcher</h2>
+<p>Brute-Force匹配器很简单，它取第一个集合里一个特征的描述子并用第二个集合里所有其他的特征和他通过一些距离计算进行匹配。最近的返回。</p>
+<p>对于BF匹配器，首先我们得用cv2.BFMatcher()创建BF匹配器对象.它取两个可选参数，第一个是normType。它指定要使用的距离量度。默认是cv2.NORM_L2。对于SIFT,SURF很好。（还有cv2.NORM_L1）。对于二进制字符串的描述子，比如ORB，BRIEF，BRISK等，应该用cv2.NORM_HAMMING。使用Hamming距离度量，如果ORB使用VTA_K == 3或者4，应该用cv2.NORM_HAMMING2</p>
+<p>第二个参数是布尔变量，crossCheck模式是false，如果它是true，匹配器返回那些和(i, j)匹配的，这样集合A里的第i个描述子和集合B里的第j个描述子最匹配。两个集合里的两个特征应该互相匹配，它提供了连续的结果，</p>
+<p>当它创建以后，两个重要的方法是BFMatcher.match()和BFMatcher.knnMatch()。第一个返回最匹配的，第二个方法返回k个最匹配的，k由用户指定。当我们需要多个的时候很有用。</p>
+<p>想我们用cv2.drawKeypoints()来画关键点一样，cv2.drawMatches()帮我们画匹配的结果，它把两个图像水平堆叠并且从第一个图像画线到第二个图像来显示匹配。还有一个cv2.drawMatchesKnn来画k个最匹配的。如果k=2，它会给每个关键点画两根匹配线。所以我们得传一个掩图，如果我们想选择性的画的话。</p>
+<p>让我们各看一个SURF和ORB的例子（都使用了不同的距离度量）</p>
+<p>使用ORB描述子的Brute-Force匹配</p>
+<p>这里我们会看到如何匹配两个图片的里的特征。在这个例子里，我有一个查询图像和一个训练图像，我们用特征匹配来在训练图像里找查询图像。</p>
+<p>我们使用SIFT描述子来匹配特征，所以让我们先加载图像，找到描述子。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">orb = cv2.ORB()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = orb.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = orb.detectAndCompute(img2,<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>接着我们用距离度量cv2.NORM_HAMMING创建一个BFMatcher对象，crossCheck设为真。然后我们用Matcher.match()方法来获得两个图像里最匹配的。我们按他们距离升序排列，这样最匹配的（距离最小）在最前面。然后我们画出最开始的10个匹配（为了好看，你可以增加）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># create BFMatcher object</span></span><br><span class="line">bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Match descriptors.</span></span><br><span class="line">matches = bf.match(des1,des2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Sort them in the order of their distance.</span></span><br><span class="line">matches = sorted(matches, key = <span class="keyword">lambda</span> x:x.distance)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Draw first 10 matches.</span></span><br><span class="line">img3 = cv2.drawMatches(img1,kp1,img2,kp2,matches[:<span class="number">10</span>], flags=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3),plt.show()</span><br></pre></td></tr></table></figure>
+<p>下面是结果： <img src="/assets/opencv学习笔记-1/bfmatch1.jpg" alt="BF匹配结果" /></p>
+<p>什么是匹配器对象？</p>
+<p>matches = bf.match(des1, des2)的结果是DMatch对象列表。这个DMatch对象有下面的属性：</p>
+<p>·DMatch.distance - 描述子之间的距离。越低越好</p>
+<p>·DMatch.trainIdx - 训练描述子里的描述子索引</p>
+<p>·DMatch.queryIdx - 查询描述子里的描述子索引</p>
+<p>·DMatch.imgIdx - 训练图像的索引</p>
+<h2 id="knnmatch">knnMatch</h2>
+<p><strong>用SIFT描述子和比率测试的Brute-Force 匹配</strong> 这次，我们使用BFMatcher.knnMatch()来获得k个最匹配的。在这个例子里，我们设置k=2这样我们可以应用比率检测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">sift = cv2.SIFT()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = sift.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = sift.detectAndCompute(img2,<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># BFMatcher with default params</span></span><br><span class="line">bf = cv2.BFMatcher()</span><br><span class="line">matches = bf.knnMatch(des1,des2, k=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Apply ratio test</span></span><br><span class="line">good = []</span><br><span class="line"><span class="keyword">for</span> m,n <span class="keyword">in</span> matches:</span><br><span class="line">    <span class="keyword">if</span> m.distance &lt; <span class="number">0.75</span>*n.distance:</span><br><span class="line">        good.append([m])</span><br><span class="line"></span><br><span class="line"><span class="comment"># cv2.drawMatchesKnn expects list of lists as matches.</span></span><br><span class="line">img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,good,flags=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3),plt.show()</span><br></pre></td></tr></table></figure>
+<p>看看下面的结果 <img src="/assets/opencv学习笔记-1/knn1.jpg" /></p>
+<p>###knn改进版-基于FLANN的匹配器 FLANN是快速估计最近邻的库。它包含了一些为大数据集内搜索快速近邻和高维特征的优化算法。它在大数据集的时候比BFMatcher更快。</p>
+<p>对于基于FLANN的匹配器，我们需要传两个字典指定要用的算法，他们相关的参数等。第一个是IndexParams。对于更多算法，要传的信息参看FLANN的文档。作为总结，对于像SIFT，SURF等的算法，你可以传下面的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">index_params=dict(algorithm=FLANN_INDEX_KDTREE,trees=<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>当使用ORB，你可以传下面的。注释里的值是推荐的值。但是在有些情况下不提供需要的结果。其他的值工作正常。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">index_params = dict(algorithm=FLANN_INDEX_LSH,</span><br><span class="line">    table_number = <span class="number">6</span>,  <span class="comment"># 12</span></span><br><span class="line">    key_size = <span class="number">12</span>,    <span class="comment"># 20</span></span><br><span class="line">    multi_probe_level = <span class="number">1</span>)  <span class="comment">#2</span></span><br></pre></td></tr></table></figure>
+<p>第二个字典是SearchParams，它指定了索引里的树应该被递归遍历的次数。更高的值带来更高的准确率。但是也花更多时间，如果你想改变值，search_params = dict(checks=100).</p>
+<p>通过这些信息，我们可以开始了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">sift = cv2.SIFT()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = sift.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = sift.detectAndCompute(img2,<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># FLANN parameters</span></span><br><span class="line">FLANN_INDEX_KDTREE = <span class="number">0</span></span><br><span class="line">index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = <span class="number">5</span>)</span><br><span class="line">search_params = dict(checks=<span class="number">50</span>)  <span class="comment"># or pass empty dictionary</span></span><br><span class="line"></span><br><span class="line">flann = cv2.FlannBasedMatcher(index_params,search_params)</span><br><span class="line"></span><br><span class="line">matches = flann.knnMatch(des1,des2,k=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Need to draw only good matches, so create a mask</span></span><br><span class="line">matchesMask = [[<span class="number">0</span>,<span class="number">0</span>] <span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(matches))]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ratio test as per Lowe's paper</span></span><br><span class="line"><span class="keyword">for</span> i,(m,n) <span class="keyword">in</span> enumerate(matches):</span><br><span class="line">    <span class="keyword">if</span> m.distance &lt; <span class="number">0.7</span>*n.distance:</span><br><span class="line">        matchesMask[i]=[<span class="number">1</span>,<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">draw_params = dict(matchColor = (<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>),</span><br><span class="line">    singlePointColor = (<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>),</span><br><span class="line">    matchesMask = matchesMask,</span><br><span class="line">    flags = <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,matches,<span class="literal">None</span>,**draw_params)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3,),plt.show()</span><br></pre></td></tr></table></figure>
+<p>结果： <img src="/assets/opencv学习笔记-1/knn2.jpg" /></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/opencv/" rel="tag"># opencv</a>
+              <a href="/tags/python/" rel="tag"># python</a>
+              <a href="/tags/numpy/" rel="tag"># numpy</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/" rel="prev" title="第一篇文章">
+      <i class="fa fa-chevron-left"></i> 第一篇文章
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/hexo%E5%9B%BE%E5%BA%8A%E6%95%99%E7%A8%8B-%E5%90%8C%E6%97%B6%E8%83%BD%E5%A4%9F%E5%9C%A8vscode%E4%B8%AD%E9%A2%84%E8%A7%88/" rel="next" title="hexo图床教程-同时能够在vscode中预览">
+      hexo图床教程-同时能够在vscode中预览 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#先学习三种模式匹配"><span class="nav-number">2.</span> <span class="nav-text">先学习三种模式匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#bfmatcher"><span class="nav-number">2.1.</span> <span class="nav-text">BFMatcher</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#knnmatch"><span class="nav-number">2.2.</span> <span class="nav-text">knnMatch</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">HentaiX</p>
+  <div class="site-description" itemprop="description">秃头中的老男人的日志</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://www.xuexi.cn/" title="https:&#x2F;&#x2F;www.xuexi.cn&#x2F;" rel="noopener" target="_blank">学习强国</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://hiagt.cn/" title="http:&#x2F;&#x2F;hiagt.cn" rel="noopener" target="_blank">hiagt</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+      
+      <!--音乐播放器-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HentaiX</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

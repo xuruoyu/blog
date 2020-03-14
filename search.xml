@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>hexo图床教程-同时能够在vscode中预览</title>
+    <url>/hexo%E5%9B%BE%E5%BA%8A%E6%95%99%E7%A8%8B-%E5%90%8C%E6%97%B6%E8%83%BD%E5%A4%9F%E5%9C%A8vscode%E4%B8%AD%E9%A2%84%E8%A7%88/</url>
+    <content><![CDATA[<p>最近初次接触hexo，但是插入图片过于麻烦，目前我是这么处理图片问题的。</p>
+<p>步骤如下： 1. 在最外层目录建立assets目录，用于存放一些体积比较大的文件，包括图片。 2. assets目录上传至七牛云存储。 3. 服务器端nginx重写<code>/assets</code>路由。</p>
+<p>当然这样处理后，hexo就不能够部署在github中了。</p>
+<p>目前我还在写一个插件，自动在<code>img</code>前面添加一个域名前缀，这样就不用nginx做重定向了。</p>
+<p>编辑时的效果</p>
+<p><img src="/assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.57.22.png" /> <img src="/assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.56.07.png" /> <img src="../../assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.57.41.png" /></p>
+<p>目前服务器端配置如下（以nginx为例） <figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">location</span> /assets &#123;</span><br><span class="line">    <span class="attribute">return</span> http://q76ff0reh.bkt.clouddn.com<span class="variable">$request_uri</span>;</span><br><span class="line">    <span class="comment">#alias /opt/blog_assets ;   # 这种模式为本服务器分发图片</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>七牛云的部署方式可以<a href="https://www.jianshu.com/p/80d5547f879d" target="_blank" rel="noopener">参考一篇文章</a></p>
+]]></content>
+      <categories>
+        <category>博客搭建时的坑</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>七牛云</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>opencv学习笔记-1</title>
+    <url>/opencv%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-1/</url>
+    <content><![CDATA[<h1 id="背景">背景</h1>
+<p>最近迷上了百闻牌这个游戏，但是有个任务需要练三个小号到15级，是在烦人，所以一直在想一个办法能否自动挂机刷经验，但是需要一些图像处理的知识。所以目前先学习一下opencv。</p>
+<h1 id="先学习三种模式匹配">先学习三种模式匹配</h1>
+<p>目前没看太多关于图片匹配的文章，所以只学了三种匹配方式 1. matchTemplate: 模版匹配 2. BFMatcher: Brute-Force匹配器 3. knnMatch: 邻近算法匹配</p>
+<h2 id="bfmatcher">BFMatcher</h2>
+<p>Brute-Force匹配器很简单，它取第一个集合里一个特征的描述子并用第二个集合里所有其他的特征和他通过一些距离计算进行匹配。最近的返回。</p>
+<p>对于BF匹配器，首先我们得用cv2.BFMatcher()创建BF匹配器对象.它取两个可选参数，第一个是normType。它指定要使用的距离量度。默认是cv2.NORM_L2。对于SIFT,SURF很好。（还有cv2.NORM_L1）。对于二进制字符串的描述子，比如ORB，BRIEF，BRISK等，应该用cv2.NORM_HAMMING。使用Hamming距离度量，如果ORB使用VTA_K == 3或者4，应该用cv2.NORM_HAMMING2</p>
+<p>第二个参数是布尔变量，crossCheck模式是false，如果它是true，匹配器返回那些和(i, j)匹配的，这样集合A里的第i个描述子和集合B里的第j个描述子最匹配。两个集合里的两个特征应该互相匹配，它提供了连续的结果，</p>
+<p>当它创建以后，两个重要的方法是BFMatcher.match()和BFMatcher.knnMatch()。第一个返回最匹配的，第二个方法返回k个最匹配的，k由用户指定。当我们需要多个的时候很有用。</p>
+<p>想我们用cv2.drawKeypoints()来画关键点一样，cv2.drawMatches()帮我们画匹配的结果，它把两个图像水平堆叠并且从第一个图像画线到第二个图像来显示匹配。还有一个cv2.drawMatchesKnn来画k个最匹配的。如果k=2，它会给每个关键点画两根匹配线。所以我们得传一个掩图，如果我们想选择性的画的话。</p>
+<p>让我们各看一个SURF和ORB的例子（都使用了不同的距离度量）</p>
+<p>使用ORB描述子的Brute-Force匹配</p>
+<p>这里我们会看到如何匹配两个图片的里的特征。在这个例子里，我有一个查询图像和一个训练图像，我们用特征匹配来在训练图像里找查询图像。</p>
+<p>我们使用SIFT描述子来匹配特征，所以让我们先加载图像，找到描述子。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">orb = cv2.ORB()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = orb.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = orb.detectAndCompute(img2,<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>接着我们用距离度量cv2.NORM_HAMMING创建一个BFMatcher对象，crossCheck设为真。然后我们用Matcher.match()方法来获得两个图像里最匹配的。我们按他们距离升序排列，这样最匹配的（距离最小）在最前面。然后我们画出最开始的10个匹配（为了好看，你可以增加）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># create BFMatcher object</span></span><br><span class="line">bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Match descriptors.</span></span><br><span class="line">matches = bf.match(des1,des2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Sort them in the order of their distance.</span></span><br><span class="line">matches = sorted(matches, key = <span class="keyword">lambda</span> x:x.distance)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Draw first 10 matches.</span></span><br><span class="line">img3 = cv2.drawMatches(img1,kp1,img2,kp2,matches[:<span class="number">10</span>], flags=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3),plt.show()</span><br></pre></td></tr></table></figure>
+<p>下面是结果： <img src="/assets/opencv学习笔记-1/bfmatch1.jpg" alt="BF匹配结果" /></p>
+<p>什么是匹配器对象？</p>
+<p>matches = bf.match(des1, des2)的结果是DMatch对象列表。这个DMatch对象有下面的属性：</p>
+<p>·DMatch.distance - 描述子之间的距离。越低越好</p>
+<p>·DMatch.trainIdx - 训练描述子里的描述子索引</p>
+<p>·DMatch.queryIdx - 查询描述子里的描述子索引</p>
+<p>·DMatch.imgIdx - 训练图像的索引</p>
+<h2 id="knnmatch">knnMatch</h2>
+<p><strong>用SIFT描述子和比率测试的Brute-Force 匹配</strong> 这次，我们使用BFMatcher.knnMatch()来获得k个最匹配的。在这个例子里，我们设置k=2这样我们可以应用比率检测。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">sift = cv2.SIFT()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = sift.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = sift.detectAndCompute(img2,<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># BFMatcher with default params</span></span><br><span class="line">bf = cv2.BFMatcher()</span><br><span class="line">matches = bf.knnMatch(des1,des2, k=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Apply ratio test</span></span><br><span class="line">good = []</span><br><span class="line"><span class="keyword">for</span> m,n <span class="keyword">in</span> matches:</span><br><span class="line">    <span class="keyword">if</span> m.distance &lt; <span class="number">0.75</span>*n.distance:</span><br><span class="line">        good.append([m])</span><br><span class="line"></span><br><span class="line"><span class="comment"># cv2.drawMatchesKnn expects list of lists as matches.</span></span><br><span class="line">img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,good,flags=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3),plt.show()</span><br></pre></td></tr></table></figure>
+<p>看看下面的结果 <img src="/assets/opencv学习笔记-1/knn1.jpg" /></p>
+<p>###knn改进版-基于FLANN的匹配器 FLANN是快速估计最近邻的库。它包含了一些为大数据集内搜索快速近邻和高维特征的优化算法。它在大数据集的时候比BFMatcher更快。</p>
+<p>对于基于FLANN的匹配器，我们需要传两个字典指定要用的算法，他们相关的参数等。第一个是IndexParams。对于更多算法，要传的信息参看FLANN的文档。作为总结，对于像SIFT，SURF等的算法，你可以传下面的：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">index_params=dict(algorithm=FLANN_INDEX_KDTREE,trees=<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>当使用ORB，你可以传下面的。注释里的值是推荐的值。但是在有些情况下不提供需要的结果。其他的值工作正常。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">index_params = dict(algorithm=FLANN_INDEX_LSH,</span><br><span class="line">    table_number = <span class="number">6</span>,  <span class="comment"># 12</span></span><br><span class="line">    key_size = <span class="number">12</span>,    <span class="comment"># 20</span></span><br><span class="line">    multi_probe_level = <span class="number">1</span>)  <span class="comment">#2</span></span><br></pre></td></tr></table></figure>
+<p>第二个字典是SearchParams，它指定了索引里的树应该被递归遍历的次数。更高的值带来更高的准确率。但是也花更多时间，如果你想改变值，search_params = dict(checks=100).</p>
+<p>通过这些信息，我们可以开始了：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">img1 = cv2.imread(<span class="string">'box.png'</span>,<span class="number">0</span>)          <span class="comment"># queryImage</span></span><br><span class="line">img2 = cv2.imread(<span class="string">'box_in_scene.png'</span>,<span class="number">0</span>) <span class="comment"># trainImage</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initiate SIFT detector</span></span><br><span class="line">sift = cv2.SIFT()</span><br><span class="line"></span><br><span class="line"><span class="comment"># find the keypoints and descriptors with SIFT</span></span><br><span class="line">kp1, des1 = sift.detectAndCompute(img1,<span class="literal">None</span>)</span><br><span class="line">kp2, des2 = sift.detectAndCompute(img2,<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># FLANN parameters</span></span><br><span class="line">FLANN_INDEX_KDTREE = <span class="number">0</span></span><br><span class="line">index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = <span class="number">5</span>)</span><br><span class="line">search_params = dict(checks=<span class="number">50</span>)  <span class="comment"># or pass empty dictionary</span></span><br><span class="line"></span><br><span class="line">flann = cv2.FlannBasedMatcher(index_params,search_params)</span><br><span class="line"></span><br><span class="line">matches = flann.knnMatch(des1,des2,k=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Need to draw only good matches, so create a mask</span></span><br><span class="line">matchesMask = [[<span class="number">0</span>,<span class="number">0</span>] <span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(matches))]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ratio test as per Lowe's paper</span></span><br><span class="line"><span class="keyword">for</span> i,(m,n) <span class="keyword">in</span> enumerate(matches):</span><br><span class="line">    <span class="keyword">if</span> m.distance &lt; <span class="number">0.7</span>*n.distance:</span><br><span class="line">        matchesMask[i]=[<span class="number">1</span>,<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">draw_params = dict(matchColor = (<span class="number">0</span>,<span class="number">255</span>,<span class="number">0</span>),</span><br><span class="line">    singlePointColor = (<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>),</span><br><span class="line">    matchesMask = matchesMask,</span><br><span class="line">    flags = <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">img3 = cv2.drawMatchesKnn(img1,kp1,img2,kp2,matches,<span class="literal">None</span>,**draw_params)</span><br><span class="line"></span><br><span class="line">plt.imshow(img3,),plt.show()</span><br></pre></td></tr></table></figure>
+<p>结果： <img src="/assets/opencv学习笔记-1/knn2.jpg" /></p>
+]]></content>
+      <categories>
+        <category>opencv学习笔记</category>
+      </categories>
+      <tags>
+        <tag>opencv</tag>
+        <tag>python</tag>
+        <tag>numpy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>第一篇文章</title>
+    <url>/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<h1 id="一级标题">一级标题</h1>
+<h2 id="二级标题">二级标题</h2>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">一段代码</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">var</span> i=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一段正文 一段公式</p>
+<p><span class="math inline">\(e=mc^2\)</span></p>
+<h1 id="结束段落">结束段落</h1>
+<p><span class="math inline">\(x^4\)</span></p>
+<p><span class="math display">\[\begin{equation} \label{eq2}
+\begin{aligned}
+a &amp;= b + c \\
+  &amp;= d + e + f + g \\
+  &amp;= h + i
+\end{aligned}
+\end{equation}\]</span></p>
+<p>一张图片 <img src="/assets/第一篇文章/main_screen_with_text.jpg" alt="main_screen_with_text.jpg" /> <!--  --&gt;</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="create-a-new-post">Create a new post</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="run-server">Run server</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="generate-static-files">Generate static files</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="deploy-to-remote-sites">Deploy to remote sites</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+  </entry>
+</search>
