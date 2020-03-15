@@ -21,15 +21,15 @@
     var CONFIG = {"hostname":"xuruoyu.gitee.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="这里写点什么呢。。。">
+  <meta name="description" content="这里写点什么呢。。。 留个联系方式吧 670359209@qq.com">
 <meta property="og:type" content="website">
 <meta property="og:title" content="about">
 <meta property="og:url" content="http://xuruoyu.gitee.io/about/index.html">
 <meta property="og:site_name" content="HentaiX">
-<meta property="og:description" content="这里写点什么呢。。。">
+<meta property="og:description" content="这里写点什么呢。。。 留个联系方式吧 670359209@qq.com">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-03-14T15:24:36.000Z">
-<meta property="article:modified_time" content="2020-03-14T15:24:44.797Z">
+<meta property="article:modified_time" content="2020-03-15T04:05:42.056Z">
 <meta property="article:author" content="HentaiX">
 <meta property="article:tag" content="blog">
 <meta name="twitter:card" content="summary">
@@ -49,6 +49,15 @@
   <title>about | HentaiX
   </title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67440326-3"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-67440326-3');
+      }
+    </script>
 
 
   <script>
@@ -231,7 +240,7 @@
       
       
       <div class="post-body">
-          <html><head></head><body><p>这里写点什么呢。。。</p>
+          <html><head></head><body><p>这里写点什么呢。。。 留个联系方式吧 670359209@qq.com</p>
 </body></html>
       </div>
       
@@ -248,6 +257,7 @@
 
           </div>
           
+    <div class="comments" id="valine-comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -325,6 +335,10 @@
       </div>
   </nav>
 </div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
 
 
   <div class="links-of-blogroll motion-element">
@@ -434,6 +448,35 @@
   
 
   
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'T7vWaSiyJkGwuILF2c9c8Gvm-9Nh9j0Va',
+      appKey     : 'iH3uS7HOwF9ujL9I4nxqog1S',
+      placeholder: "留下你的评论吧",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
 
 </body>
 </html>

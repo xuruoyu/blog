@@ -46,6 +46,15 @@
 
   <title>标签: 七牛云 | HentaiX</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67440326-3"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-67440326-3');
+      }
+    </script>
 
 
   <script>
@@ -330,6 +339,10 @@
       </div>
   </nav>
 </div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
 
 
   <div class="links-of-blogroll motion-element">
@@ -439,6 +452,35 @@
   
 
   
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'T7vWaSiyJkGwuILF2c9c8Gvm-9Nh9j0Va',
+      appKey     : 'iH3uS7HOwF9ujL9I4nxqog1S',
+      placeholder: "留下你的评论吧",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
 
 </body>
 </html>
