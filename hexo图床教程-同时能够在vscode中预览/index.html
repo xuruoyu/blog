@@ -310,7 +310,7 @@
 <p><img src="http://q76ff0reh.bkt.clouddn.com/assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.57.22.png"> <img src="http://q76ff0reh.bkt.clouddn.com/assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.56.07.png"> <img src="http://q76ff0reh.bkt.clouddn.com/assets/hexo图床教程-同时能够在vscode中预览/截屏2020-03-15上午12.57.41.png"></p>
 <p>目前服务器端配置如下（以nginx为例） </p><figure class="highlight nginx"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span> /assets {</span><br><span class="line">    <span class="attribute">return</span> http://q76ff0reh.bkt.clouddn.com<span class="variable">$request_uri</span>;</span><br><span class="line">    <span class="comment">#alias /opt/blog_assets ;   # 这种模式为本服务器分发图片</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure><p></p>
 <p>七牛云的部署方式可以<a href="https://www.jianshu.com/p/80d5547f879d" target="_blank" rel="noopener">参考一篇文章</a></p>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body></html>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"http://q76ff0reh.bkt.clouddn.com/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false,"scale":0.5},"react":{"opacity":1}});</script></body></html>
     </div>
 
     
@@ -586,5 +586,5 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
 });
 </script>
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"http://q76ff0reh.bkt.clouddn.com/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false,"scale":0.5},"react":{"opacity":1}});</script></body>
 </html>
