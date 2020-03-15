@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://xuruoyu.gitee.io/lib/three/package.json</loc>
+    
+    <lastmod>2020-03-15T05:59:11.014Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xuruoyu.gitee.io/lib/three/renovate.json</loc>
+    
+    <lastmod>2020-03-15T05:59:11.014Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xuruoyu.gitee.io/lib/three/package-lock.json</loc>
+    
+    <lastmod>2020-03-15T05:59:11.014Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://xuruoyu.gitee.io/lib/three/README.html</loc>
+    
+    <lastmod>2020-03-15T05:59:11.011Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://xuruoyu.gitee.io/hexo%E5%9B%BE%E5%BA%8A%E6%95%99%E7%A8%8B-%E5%90%8C%E6%97%B6%E8%83%BD%E5%A4%9F%E5%9C%A8vscode%E4%B8%AD%E9%A2%84%E8%A7%88/</loc>
     
     <lastmod>2020-03-15T05:01:59.582Z</lastmod>
